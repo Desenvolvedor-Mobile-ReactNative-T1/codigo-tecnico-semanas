@@ -79,23 +79,27 @@ function formatarData(iso) {
   return data.toLocaleDateString("pt-BR", { day: "numeric", month: "long" });
 }
 
+// iso = data da API, tipo "2026-09-14". indice = posição na previsão (0, 1, 2...).
 function nomeDoDia(iso, indice) {
+  // O primeiro card é sempre "Hoje", não o nome da semana.
   if (indice === 0) {
     return "Hoje";
   }
 
+  // T12:00:00 trava o horário no meio do dia. Sem isso, o fuso pode virar a data para ontem.
   const data = new Date(`${iso}T12:00:00`);
+  // weekday: "long" → "segunda-feira" em português (minúsculo).
   const nome = data.toLocaleDateString("pt-BR", { weekday: "long" });
+  // Primeira letra maiúscula: "Segunda-feira".
   return nome.charAt(0).toUpperCase() + nome.slice(1);
 }
 
 async function buscarTempo(cidade) {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${cidade.latitude}&longitude=${cidade.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=America/Sao_Paulo&forecast_days=7`;
   try {
-    const blablabla = await fetch(url);
-    console.log("ANTES", blablabla);
+    const response = await fetch(url);
 
-    if (blablabla.ok === false) {
+    if (response.ok === false) {
       throw new Error(`Erro HTTP: ${response.status}`);
     }
 
