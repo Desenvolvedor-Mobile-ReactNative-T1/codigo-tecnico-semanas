@@ -26,20 +26,6 @@ const cidades = [
     selo: "Floripa",
     latitude: -27.5954,
     longitude: -48.548,
-    temperatura: 23,
-    condicao: "Parcialmente nublado",
-    sensacao: 24,
-    umidade: "61%",
-    vento: "12 km/h",
-    previsao: [
-      { id: "temp-hoje", max: 26, min: 16, condicao: "Parcialmente nublado" },
-      { id: "temp-segunda", max: 27, min: 17, condicao: "Predominantemente limpo" },
-      { id: "temp-terca", max: 24, min: 16, condicao: "Nublado" },
-      { id: "temp-quarta", max: 22, min: 15, condicao: "Chuva fraca" },
-      { id: "temp-quinta", max: 25, min: 16, condicao: "Parcialmente nublado" },
-      { id: "temp-sexta", max: 28, min: 17, condicao: "Céu limpo" },
-      { id: "temp-sabado", max: 29, min: 18, condicao: "Predominantemente limpo" },
-    ],
   },
   {
     value: "sao-paulo",
@@ -47,20 +33,6 @@ const cidades = [
     selo: "SP",
     latitude: -23.5505,
     longitude: -46.6333,
-    temperatura: 19,
-    condicao: "Nublado",
-    sensacao: 18,
-    umidade: "78%",
-    vento: "8 km/h",
-    previsao: [
-      { id: "temp-hoje", max: 21, min: 14, condicao: "Nublado" },
-      { id: "temp-segunda", max: 22, min: 15, condicao: "Chuva fraca" },
-      { id: "temp-terca", max: 20, min: 14, condicao: "Chuva" },
-      { id: "temp-quarta", max: 18, min: 13, condicao: "Nublado" },
-      { id: "temp-quinta", max: 23, min: 15, condicao: "Parcialmente nublado" },
-      { id: "temp-sexta", max: 25, min: 16, condicao: "Céu limpo" },
-      { id: "temp-sabado", max: 24, min: 16, condicao: "Parcialmente nublado" },
-    ],
   },
   {
     value: "rio-de-janeiro",
@@ -68,20 +40,6 @@ const cidades = [
     selo: "Rio",
     latitude: -22.9068,
     longitude: -43.1729,
-    temperatura: 27,
-    condicao: "Céu limpo",
-    sensacao: 28,
-    umidade: "55%",
-    vento: "14 km/h",
-    previsao: [
-      { id: "temp-hoje", max: 29, min: 21, condicao: "Céu limpo" },
-      { id: "temp-segunda", max: 30, min: 22, condicao: "Céu limpo" },
-      { id: "temp-terca", max: 28, min: 21, condicao: "Parcialmente nublado" },
-      { id: "temp-quarta", max: 26, min: 20, condicao: "Chuva fraca" },
-      { id: "temp-quinta", max: 27, min: 21, condicao: "Parcialmente nublado" },
-      { id: "temp-sexta", max: 31, min: 22, condicao: "Céu limpo" },
-      { id: "temp-sabado", max: 32, min: 23, condicao: "Céu limpo" },
-    ],
   },
 ];
 
@@ -132,90 +90,85 @@ function nomeDoDia(iso, indice) {
 }
 
 async function buscarTempo(cidade) {
-  // 1. Monte a URL da Open-Meteo com cidade.latitude e cidade.longitude
-  //    (a URL completa está no README)
-  //
-  // 2. try/catch:
-  //    - const response = await fetch(url)
-  //    - se !response.ok, throw new Error(`Erro HTTP: ${response.status}`)
-  //    - const dados = await response.json()
-  //    - return dados
-  //    - no catch: console.error("Falhou:", erro)
-}
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${cidade.latitude}&longitude=${cidade.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=America/Sao_Paulo&forecast_days=7`;
+  try {
+    const blablabla = await fetch(url);
+    console.log("ANTES", blablabla);
 
-function atualizarTela(chaveCidade, unidade) {
-  const cidade = cidades.find((item) => item.value === chaveCidade);
-
-  selo.textContent = cidade.selo;
-  titulo.textContent = `Tempo em ${cidade.nome} hoje`;
-  condicao.textContent = cidade.condicao;
-  umidade.textContent = cidade.umidade;
-  vento.textContent = cidade.vento;
-
-  if (unidade === "fahrenheit") {
-    temperatura.textContent = `${paraFahrenheit(cidade.temperatura)} °F`;
-    sensacao.textContent = `${paraFahrenheit(cidade.sensacao)} °F`;
-    botaoCelsius.classList.remove("ativa");
-    botaoFahrenheit.classList.add("ativa");
-  } else {
-    temperatura.textContent = `${cidade.temperatura} °C`;
-    sensacao.textContent = `${cidade.sensacao} °C`;
-    botaoFahrenheit.classList.remove("ativa");
-    botaoCelsius.classList.add("ativa");
-  }
-
-  cidade.previsao.forEach((dia) => {
-    const elemento = document.querySelector(`#${dia.id}`);
-
-    if (unidade === "fahrenheit") {
-      elemento.textContent = `${paraFahrenheit(dia.max)}° / ${paraFahrenheit(dia.min)}°`;
-    } else {
-      elemento.textContent = `${dia.max}° / ${dia.min}°`;
+    if (blablabla.ok === false) {
+      throw new Error(`Erro HTTP: ${response.status}`);
     }
 
-    elemento.nextElementSibling.textContent = dia.condicao;
-  });
+    const dados = await blablabla.json();
+    console.log(dados);
 
-  // Adapte esta função para receber também o JSON da API (clima).
-  // Troque os números fixos da cidade pelos campos da Open-Meteo:
-  //   cidade.condicao        → traduzirCondicao(clima.current.weather_code)
-  //   cidade.umidade         → `${clima.current.relative_humidity_2m}%`
-  //   cidade.vento           → `${Math.round(clima.current.wind_speed_10m)} km/h`
-  //   cidade.temperatura     → Math.round(clima.current.temperature_2m)
-  //   cidade.sensacao        → Math.round(clima.current.apparent_temperature)
-  //   cidade.previsao        → idsPrevisao + clima.daily (time, weather_code, max e min)
-  // Atualize também o <h3> e o <time> de cada card com nomeDoDia e formatarData.
+    return dados;
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 async function carregarCidade(chaveCidade) {
-  // 1. Encontre a cidade no array cidades
-  // 2. climaAtual = await buscarTempo(cidade)
-  // 3. Leia a unidade salva (ou "celsius")
-  // 4. Se climaAtual existir, chame atualizarTela com a cidade, o clima e a unidade
+  const cidade = cidades.find((item) => item.value === chaveCidade);
+
+  const unidade = localStorage.getItem("unidadeTemperatura") || "celsius";
+
+  climaAtual = await buscarTempo(cidade);
+  console.log(climaAtual);
+
+  atualizarTela(cidade, climaAtual, unidade);
+}
+
+function atualizarTela(cidade, clima, unidade) {
+  selo.textContent = cidade.selo;
+  titulo.textContent = `Tempo em ${cidade.nome} hoje`;
+
+  const temperaturaAgora = Math.round(clima.current.temperature_2m);
+  const sensacaoTermica = Math.round(clima.current.apparent_temperature);
+
+  umidade.textContent = `${clima.current.relative_humidity_2m}%`;
+  vento.textContent = `${Math.round(clima.current.wind_speed_10m)} km/h`;
+
+  condicao.textContent = traduzirCondicao(clima.current.weather_code);
+
+  if (unidade === "fahrenheit") {
+    temperatura.textContent = `${paraFahrenheit(temperaturaAgora)} °F`;
+    sensacao.textContent = `${paraFahrenheit(sensacaoTermica)} °F`;
+    botaoCelsius.classList.remove("ativa");
+    botaoFahrenheit.classList.add("ativa");
+  } else {
+    temperatura.textContent = `${temperaturaAgora} °C`;
+    sensacao.textContent = `${sensacaoTermica} °C`;
+    botaoFahrenheit.classList.remove("ativa");
+    botaoCelsius.classList.add("ativa");
+  }
 }
 
 botaoCelsius.addEventListener("click", () => {
   localStorage.setItem("unidadeTemperatura", "celsius");
-  atualizarTela(cidadeSelect.value, "celsius");
+  const cidade = cidades.find((item) => item.value === cidadeSelect.value);
+  atualizarTela(cidade, climaAtual, "celsius");
   // Depois da API: use climaAtual e não busque de novo
 });
 
 botaoFahrenheit.addEventListener("click", () => {
   localStorage.setItem("unidadeTemperatura", "fahrenheit");
-  atualizarTela(cidadeSelect.value, "fahrenheit");
+  const cidade = cidades.find((item) => item.value === cidadeSelect.value);
+  atualizarTela(cidade, climaAtual, "fahrenheit");
   // Depois da API: use climaAtual e não busque de novo
 });
 
 cidadeSelect.addEventListener("change", () => {
   localStorage.setItem("cidade", cidadeSelect.value);
   const unidade = localStorage.getItem("unidadeTemperatura") || "celsius";
-  atualizarTela(cidadeSelect.value, unidade);
-  // Depois da API: chame carregarCidade(cidadeSelect.value)
+  carregarCidade(cidadeSelect.value);
 });
 
 const cidadeSalva = localStorage.getItem("cidade") || "florianopolis";
 const unidadeSalva = localStorage.getItem("unidadeTemperatura") || "celsius";
 
-cidadeSelect.value = cidadeSalva;
-atualizarTela(cidadeSalva, unidadeSalva);
+// cidadeSelect.value = cidadeSalva;
+// atualizarTela(cidadeSalva, unidadeSalva);
 // Depois da API: chame carregarCidade(cidadeSalva)
+cidadeSelect.value = cidadeSalva;
+carregarCidade(cidadeSalva);
