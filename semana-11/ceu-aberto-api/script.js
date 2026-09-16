@@ -8,6 +8,8 @@ const condicao = document.querySelector("#condicao");
 const sensacao = document.querySelector("#sensacao");
 const umidade = document.querySelector("#umidade");
 const vento = document.querySelector("#vento");
+const botaoLocalizacao = document.querySelector("#botao-localizacao");
+const statusMessage = document.querySelector("#status");
 
 const idsPrevisao = [
   "temp-hoje",
@@ -103,7 +105,7 @@ async function buscarTempo(cidade) {
       throw new Error(`Erro HTTP: ${response.status}`);
     }
 
-    const dados = await blablabla.json();
+    const dados = await response.json();
     console.log(dados);
 
     return dados;
@@ -112,13 +114,68 @@ async function buscarTempo(cidade) {
   }
 }
 
+function mostrarStatus(texto) {
+  statusMessage.textContent = texto;
+}
+
+function distanciaAte(cidade, latitude, longitude) {
+  //Quanto maio numero, mais distante está
+  return (
+    Math.abs(cidade.latitude - latitude) +
+    Math.abs(cidade.longitude - longitude)
+  );
+}
+
+function cidadeMaisProxima(latitude, longitude) {
+  let maisProxima = cidades[0];
+
+  for (let i = 1; i < cidades.length; i++) {
+    const cidade = cidades[i];
+
+    if (
+      distanciaAte(cidade, latitude, longitude) <
+      distanciaAte(maisProxima, latitude, longitude)
+    ) {
+      maisProxima = cidade;
+    }
+  }
+
+  return maisProxima;
+}
+
+function usarMinhaLocalizacao() {
+  if (!navigator.geolocation) {
+    mostrarStatus("Seu navegador não tem geolocalização.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const cidade = cidadeMaisProxima(
+        position.coords.latitude,
+        position.coords.longitude,
+      );
+
+      cidadeSelect.value = cidade.value;
+      localStorage.setItem("cidade", cidade.value);
+      carregarCidade(cidade.value);
+    },
+    (error) => {
+      console.error(`Erro ${error.code}: ${error.message}`);
+    },
+    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
+  );
+}
+
 async function carregarCidade(chaveCidade) {
   const cidade = cidades.find((item) => item.value === chaveCidade);
-
   const unidade = localStorage.getItem("unidadeTemperatura") || "celsius";
 
+  mostrarStatus("Carregando...");
+
   climaAtual = await buscarTempo(cidade);
-  console.log(climaAtual);
+
+  mostrarStatus("");
 
   atualizarTela(cidade, climaAtual, unidade);
 }
@@ -146,6 +203,18 @@ function atualizarTela(cidade, clima, unidade) {
     botaoFahrenheit.classList.remove("ativa");
     botaoCelsius.classList.add("ativa");
   }
+
+  idsPrevisao.forEach((el, indice) => {
+    const elemento = document.querySelector(`#${el}`);
+    const max = Math.round(clima.daily.temperature_2m_max[indice]);
+    const min = Math.round(clima.daily.temperature_2m_min[indice]);
+
+    if (unidade === "fahrenheit") {
+      elemento.textContent = `${paraFahrenheit(max)} °F / ${paraFahrenheit(min)}°F`;
+    } else {
+      elemento.textContent = `${max}° / ${min}°`;
+    }
+  });
 }
 
 botaoCelsius.addEventListener("click", () => {
@@ -166,6 +235,10 @@ cidadeSelect.addEventListener("change", () => {
   localStorage.setItem("cidade", cidadeSelect.value);
   const unidade = localStorage.getItem("unidadeTemperatura") || "celsius";
   carregarCidade(cidadeSelect.value);
+});
+
+botaoLocalizacao.addEventListener("click", () => {
+  usarMinhaLocalizacao();
 });
 
 const cidadeSalva = localStorage.getItem("cidade") || "florianopolis";

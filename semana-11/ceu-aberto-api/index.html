@@ -34,11 +34,15 @@
             <h1 id="titulo">Tempo em Florianópolis hoje</h1>
 
             <label class="campo-cidade" for="cidade">Cidade</label>
-            <select id="cidade">
-                <option value="florianopolis">Florianópolis</option>
-                <option value="sao-paulo">São Paulo</option>
-                <option value="rio-de-janeiro">Rio de Janeiro</option>
-            </select>
+            <div class="campo-cidade-acoes">
+                <select id="cidade">
+                    <option value="florianopolis">Florianópolis</option>
+                    <option value="sao-paulo">São Paulo</option>
+                    <option value="rio-de-janeiro">Rio de Janeiro</option>
+                </select>
+                <button type="button" id="botao-localizacao">Usar minha localização</button>
+            </div>
+            <p id="status" aria-live="polite"></p>
         </section>
 
         <section class="agora" id="agora">
