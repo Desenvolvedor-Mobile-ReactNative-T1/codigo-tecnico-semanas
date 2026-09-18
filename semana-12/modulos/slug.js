@@ -1,7 +1,5 @@
-const slugify = require("slugify");
+import slugify from "slugify";
 
-function criarSlug(titulo) {
+export function criarSlug(titulo) {
   return slugify(titulo, { lower: true });
 }
-
-module.exports = { criarSlug };

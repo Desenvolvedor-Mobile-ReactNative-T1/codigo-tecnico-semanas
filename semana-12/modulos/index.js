@@ -1,3 +1,3 @@
-const { criarSlug } = require("./slug.js");
+import { criarSlug } from "./slug.js";
 
-console.log(criarSlug("CommonJS para ESM"));
+console.log(criarSlug("TURMA REACT NATIVE"));
