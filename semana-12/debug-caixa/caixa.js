@@ -36,9 +36,10 @@ function fecharCaixa(pedidos, cupom) {
 
   for (const pedido of pedidos) {
     total += calcularItem(pedido);
+    total = aplicarCupom(total, cupom);
   }
 
-  return aplicarCupom(total, cupom);
+  return total;
 }
 
 function imprimirRelatorio(pedidos, cupom, total) {
