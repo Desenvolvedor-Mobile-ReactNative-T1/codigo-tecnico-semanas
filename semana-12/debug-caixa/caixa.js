@@ -3,7 +3,13 @@ const PRECO_COMBO = 22;
 const pedidos = [
   { filme: "Duna", tipo: "inteira", quantidade: 2, preco: 32, combos: 1 },
   { filme: "Duna", tipo: "meia", quantidade: 2, preco: 32, combos: 0 },
-  { filme: "Interestelar", tipo: "inteira", quantidade: 3, preco: 28, combos: 2 },
+  {
+    filme: "Interestelar",
+    tipo: "inteira",
+    quantidade: 3,
+    preco: 28,
+    combos: 2,
+  },
 ];
 
 const cupom = "CINE10";
@@ -36,10 +42,9 @@ function fecharCaixa(pedidos, cupom) {
 
   for (const pedido of pedidos) {
     total += calcularItem(pedido);
-    total = aplicarCupom(total, cupom);
   }
 
-  return total;
+  return aplicarCupom(total, cupom);
 }
 
 function imprimirRelatorio(pedidos, cupom, total) {
